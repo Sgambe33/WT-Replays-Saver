@@ -21,10 +21,7 @@ Automate the process of uploading your replays. This feature ensures that all yo
 
 ## Demo Video
 
-<video width="480" height="600" controls title="Demo Video">
-  <source src="./readme_resources/demovideo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Video can be seen here](https://github.com/Sgambe33/WT-Replays-Saver/blob/main/readme_resources/demovideo.mp4)
 
 ## Getting Started
 
