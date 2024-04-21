@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Authentication Demo',
-      theme: ThemeData.dark(), // Use dark theme
+      theme: ThemeData.dark(),
       home: FutureBuilder(
           future: jwtOrEmpty,
           builder: (context, snapshot) {

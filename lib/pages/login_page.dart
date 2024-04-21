@@ -20,13 +20,13 @@ class LoginPage extends StatelessWidget {
       );
 
   Future<Map<String, dynamic>?> attemptLogIn(String username, String password) async {
-    var res = await http.post(Uri.http(ENDPOINT, "/login"), body: {"username": username, "password": password});
+    var res = await http.post(Uri.http(ENDPOINT, "/api/login"), body: {"username": username, "password": password});
     if (res.statusCode == 200) return jsonDecode(res.body);
     return null;
   }
 
   Future<int> attemptSignUp(String username, String password) async {
-    var res = await http.post(Uri.http(ENDPOINT, "/signup"),
+    var res = await http.post(Uri.http(ENDPOINT, "/api/signup"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -53,7 +53,7 @@ class LoginPage extends StatelessWidget {
               Text("Replays Saver", style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 40),
               SizedBox(
-                width: 300, // adjust this value as needed
+                width: 300,
                 child: TextFormField(
                   controller: _usernameController,
                   maxLength: 20,
@@ -69,7 +69,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 300, // adjust this value as needed
+                width: 300,
                 child: TextFormField(
                   controller: _passwordController,
                   obscureText: true,

@@ -7,7 +7,6 @@ import 'package:wtreplaysaver/main.dart';
 import 'package:wtreplaysaver/pages/settings_page.dart';
 import 'package:wtreplaysaver/utils/constants.dart';
 import 'dart:convert';
-
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
@@ -63,7 +62,7 @@ class _PageSelectorState extends State<PageSelector> {
       final files = dir.listSync().where((element) => path.extension(element.path) == '.wrpl' && element is File).cast<File>();
       totalReplays = files.length;
       for (final file in files) {
-        final request = http.MultipartRequest('POST', Uri.http(ENDPOINT, "/upload"));
+        final request = http.MultipartRequest('POST', Uri.http(ENDPOINT, "/api/upload"));
         request.headers.addAll({'Authorization': 'Bearer $jwt'});
         request.files.add(await http.MultipartFile.fromPath('file', file.path));
         final response = await request.send();
@@ -88,7 +87,7 @@ class _PageSelectorState extends State<PageSelector> {
 
   Future<dynamic> get userReplays async {
     final res = await http.get(
-      Uri.http(ENDPOINT, '/replays'),
+      Uri.http(ENDPOINT, '/api/replays'),
       headers: {'Authorization': 'Bearer ${widget.jwt}'},
     );
     print(jsonDecode(res.body));
@@ -108,7 +107,7 @@ class _PageSelectorState extends State<PageSelector> {
                         ? "Ships"
                         : "Planes")),
                 DataCell(Text(item['difficulty'].toString())),
-                DataCell(Text((item['play_time'] / 60).toStringAsFixed(2))),
+                DataCell(Text(Duration(seconds: item['play_time']).toString().split('.').first.padLeft(8, "0"))),
                 DataCell(Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(item['upload_time'] * 1000).toLocal()))),
               ],
             ))
@@ -130,6 +129,7 @@ class _PageSelectorState extends State<PageSelector> {
           title: Text("Welcome back ${widget.payload["sub"]}"),
           automaticallyImplyLeading: false,
           actions: [
+            IconButton(onPressed: refreshRows, icon: const Icon(Icons.refresh)),
             IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
@@ -145,7 +145,6 @@ class _PageSelectorState extends State<PageSelector> {
                   );
                 },
                 icon: const Icon(Icons.exit_to_app)),
-            IconButton(onPressed: refreshRows, icon: const Icon(Icons.refresh))
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -161,7 +160,7 @@ class _PageSelectorState extends State<PageSelector> {
                   ),
                   content: SizedBox(
                     width: 400,
-                    height: 200, // Adjust as needed.
+                    height: 200,
                     child: Column(
                       children: <Widget>[
                         const LinearProgressIndicator(),
