@@ -146,4 +146,11 @@ const Map<String, String> levels = {
   "levels/avg_forgotten_land": "Forgotten Lands",
 };
 
-const String ENDPOINT = "localhost:5000";
+const Map<String, String> gameModes = {
+  "air_ground_Dom": "Domination",
+  "air_naval_Dom": "Domination",
+  "ground_strike": "Ground Strike",
+  "air_ground_Conq": "Conquest",
+  "air_ground_Bttl": "Battle",
+  "base_dom": "Base Domination"
+};
