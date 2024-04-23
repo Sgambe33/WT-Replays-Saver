@@ -29,13 +29,20 @@ class _PageSelectorState extends State<PageSelector> {
   final ScrollController _scrollController = ScrollController();
   List<DataRow2> rows = [];
   List<DataColumn2> columns = const [
-    DataColumn2(label: Text('Start Time'), tooltip: "Time when the replay started"),
+    DataColumn2(
+        label: Text('Start Time'), tooltip: "Time when the replay started"),
     DataColumn2(label: Text('Map Name'), tooltip: "Name of the map"),
-    DataColumn2(label: Text('Game Mode'), tooltip: "Game mode: conquest, domination, etc."),
+    DataColumn2(
+        label: Text('Game Mode'),
+        tooltip: "Game mode: conquest, domination, etc."),
     DataColumn2(label: Text('Vehicles'), tooltip: "Planes, Tanks, Ships"),
-    DataColumn2(label: Text('Difficulty'), tooltip: "Arcade, Realistic, Simulator"),
-    DataColumn2(label: Text('Play Time'), tooltip: "Time spent in minutes in the game"),
-    DataColumn2(label: Text('Upload Time'), tooltip: "Time when the replay was uploaded"),
+    DataColumn2(
+        label: Text('Difficulty'), tooltip: "Arcade, Realistic, Simulator"),
+    DataColumn2(
+        label: Text('Play Time'), tooltip: "Time spent in minutes in the game"),
+    DataColumn2(
+        label: Text('Upload Time'),
+        tooltip: "Time when the replay was uploaded"),
   ];
   int totalReplays = 0;
 
@@ -52,66 +59,83 @@ class _PageSelectorState extends State<PageSelector> {
 
   Future<void> uploadFiles(String jwt, BuildContext context) async {
     if (prefs.getString('replayFolderPath') == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No directory selected')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No directory selected')));
       return;
     }
 
     final dir = Directory(prefs.getString('replayFolderPath')!);
 
     if (await dir.exists()) {
-      final files = dir.listSync().where((element) => path.extension(element.path) == '.wrpl' && element is File).cast<File>();
+      final files = dir
+          .listSync()
+          .where((element) =>
+              path.extension(element.path) == '.wrpl' && element is File)
+          .cast<File>();
       totalReplays = files.length;
       for (final file in files) {
-        final request = http.MultipartRequest('POST', Uri.http(ENDPOINT, "/api/upload"));
+        final request = http.MultipartRequest(
+            'POST', Uri.parse(const String.fromEnvironment('UPLOAD_ENDPOINT')));
         request.headers.addAll({'Authorization': 'Bearer $jwt'});
         request.files.add(await http.MultipartFile.fromPath('file', file.path));
         final response = await request.send();
         String fileName = path.basename(file.path);
         if (response.statusCode == 200) {
-          print('Uploaded ${file.path}');
           _loggingController.text += 'Uploading $fileName\n';
         } else if (response.statusCode == 409) {
-          print('File already exists');
           _loggingController.text += 'File $fileName already exists\n';
         }
 
         if (_scrollController.hasClients) {
-          _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeOut);
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 100),
+              curve: Curves.easeOut);
         }
       }
       _loggingController.text += 'Finished uploading files\n';
     } else {
-      print('Directory does not exist');
+      _loggingController.text += 'Directory does not exist\n';
     }
   }
 
   Future<dynamic> get userReplays async {
     final res = await http.get(
-      Uri.http(ENDPOINT, '/api/replays'),
+      Uri.parse(const String.fromEnvironment("REPLAYS_ENDPOINT")),
       headers: {'Authorization': 'Bearer ${widget.jwt}'},
     );
-    print(jsonDecode(res.body));
     return jsonDecode(res.body);
   }
 
   List<DataRow2> generateRows(snapshotData) {
-    return snapshotData
-        .map<DataRow2>((item) => DataRow2(
-              cells: [
-                DataCell(Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(item['start_time'] * 1000).toLocal()))),
-                DataCell(Text(levels[item['level_name'].replaceAll(".bin", "").replaceAll(RegExp("_snow\$"), "")] ?? item['level_name'])),
-                DataCell(Text(item['level_type'])),
-                DataCell(Text(item['level_type'].toString().contains("ground")
-                    ? "Tanks"
-                    : item['level_type'].toString().contains("naval")
-                        ? "Ships"
-                        : "Planes")),
-                DataCell(Text(item['difficulty'].toString())),
-                DataCell(Text(Duration(seconds: item['play_time']).toString().split('.').first.padLeft(8, "0"))),
-                DataCell(Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(item['upload_time'] * 1000).toLocal()))),
-              ],
-            ))
-        .toList();
+    return snapshotData.map<DataRow2>((item) {
+      return DataRow2(
+        cells: [
+          DataCell(Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(
+              DateTime.fromMillisecondsSinceEpoch(item['start_time'] * 1000)
+                  .toLocal()))),
+          DataCell(Text(levels[item['level_name']
+                  .replaceAll(".bin", "")
+                  .replaceAll(RegExp("_snow\$"), "")] ??
+              item['level_name'])),
+          DataCell(Text(gameModes[item['level_type']] ?? item['level_type'])),
+          DataCell(Text(item['level_type'].toString().contains("ground")
+              ? "Tanks"
+              : item['level_type'].toString().contains("naval")
+                  ? "Ships"
+                  : "Planes")),
+          DataCell(Text(item['difficulty'].toString())),
+          DataCell(Text(Duration(seconds: item['play_time'])
+              .toString()
+              .split('.')
+              .first
+              .padLeft(8, "0"))),
+          DataCell(Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(
+              DateTime.fromMillisecondsSinceEpoch(item['upload_time'] * 1000)
+                  .toLocal()))),
+        ],
+      );
+    }).toList();
   }
 
   void refreshRows() {
@@ -132,7 +156,8 @@ class _PageSelectorState extends State<PageSelector> {
             IconButton(onPressed: refreshRows, icon: const Icon(Icons.refresh)),
             IconButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SettingsPage()));
               },
               icon: const Icon(Icons.settings),
             ),
