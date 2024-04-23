@@ -9,7 +9,6 @@ import 'package:wtreplaysaver/pages/page_selector.dart';
 const storage = FlutterSecureStorage();
 
 void main() {
-  storage.deleteAll();
   runApp(const MyApp());
 }
 
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Authentication Demo',
+      title: 'Replay Saver',
       theme: ThemeData.dark(),
       home: FutureBuilder(
           future: jwtOrEmpty,
@@ -41,7 +40,8 @@ class MyApp extends StatelessWidget {
               if (jwt.length != 3) {
                 return LoginPage();
               } else {
-                var payload = json.decode(ascii.decode(base64.decode(base64.normalize(jwt[1]))));
+                var payload = json.decode(
+                    ascii.decode(base64.decode(base64.normalize(jwt[1]))));
                 return PageSelector(str, payload);
               }
             } else {
