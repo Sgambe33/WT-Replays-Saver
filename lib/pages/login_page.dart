@@ -4,7 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:wtreplaysaver/pages/page_selector.dart';
-import 'package:wtreplaysaver/utils/constants.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -16,17 +15,22 @@ class LoginPage extends StatelessWidget {
 
   void displayDialog(context, title, text) => showDialog(
         context: context,
-        builder: (context) => AlertDialog(title: Text(title), content: Text(text)),
+        builder: (context) =>
+            AlertDialog(title: Text(title), content: Text(text)),
       );
 
-  Future<Map<String, dynamic>?> attemptLogIn(String username, String password) async {
-    var res = await http.post(Uri.http(ENDPOINT, "/api/login"), body: {"username": username, "password": password});
+  Future<Map<String, dynamic>?> attemptLogIn(
+      String username, String password) async {
+    var res = await http.post(
+        Uri.parse(const String.fromEnvironment("LOGIN_ENDPOINT")),
+        body: {"username": username, "password": password});
     if (res.statusCode == 200) return jsonDecode(res.body);
     return null;
   }
 
   Future<int> attemptSignUp(String username, String password) async {
-    var res = await http.post(Uri.http(ENDPOINT, "/api/signup"),
+    var res = await http.post(
+        Uri.parse(const String.fromEnvironment("SIGNUP_ENDPOINT")),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -34,6 +38,7 @@ class LoginPage extends StatelessWidget {
           'username': username,
           'password': password,
         }));
+    print(res.body);
     return res.statusCode;
   }
 
@@ -50,7 +55,8 @@ class LoginPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text("Replays Saver", style: Theme.of(context).textTheme.headlineSmall),
+              Text("Replays Saver",
+                  style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 40),
               SizedBox(
                 width: 300,
@@ -86,49 +92,66 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
                 onPressed: () async {
                   var username = _usernameController.text;
                   if (username.isEmpty) {
-                    displayDialog(context, "Invalid Username", "The username should not be empty.");
+                    displayDialog(context, "Invalid Username",
+                        "The username should not be empty.");
                     return;
                   }
 
                   var password = _passwordController.text;
                   if (password.isEmpty) {
-                    displayDialog(context, "Invalid Password", "The password should not be empty.");
+                    displayDialog(context, "Invalid Password",
+                        "The password should not be empty.");
                     return;
                   }
 
                   var jwt = await attemptLogIn(username, password);
                   if (jwt?["access_token"] == null) {
-                    displayDialog(context, "An Error Occurred", "No account was found matching that username and password.");
+                    displayDialog(context, "An Error Occurred",
+                        "No account was found matching that username and password.");
                     return;
                   }
                   storage.write(key: "jwt", value: jwt?["access_token"]);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PageSelector(jwt?["access_token"], JwtDecoder.decode(jwt?["access_token"]))));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PageSelector(
+                              jwt?["access_token"],
+                              JwtDecoder.decode(jwt?["access_token"]))));
                 },
                 child: const Text('Log In'),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
                 onPressed: () async {
                   var username = _usernameController.text;
                   var password = _passwordController.text;
 
                   if (username.length < 4) {
-                    displayDialog(context, "Invalid Username", "The username should be at least 4 characters long");
+                    displayDialog(context, "Invalid Username",
+                        "The username should be at least 4 characters long");
                   } else if (password.length < 4) {
-                    displayDialog(context, "Invalid Password", "The password should be at least 4 characters long");
+                    displayDialog(context, "Invalid Password",
+                        "The password should be at least 4 characters long");
                   } else {
                     var res = await attemptSignUp(username, password);
                     if (res == 200) {
-                      displayDialog(context, "Success", "Congratulations! Your account has been successfully created. You can now log in.");
+                      displayDialog(context, "Success",
+                          "Congratulations! Your account has been successfully created. You can now log in.");
                     } else if (res == 409) {
-                      displayDialog(context, "Username Already Registered", "The username you've chosen is already in use. Please try signing up with a different username, or if you already have an account, you can log in.");
+                      displayDialog(context, "Username Already Registered",
+                          "The username you've chosen is already in use. Please try signing up with a different username, or if you already have an account, you can log in.");
                     } else {
-                      displayDialog(context, "Unexpected Error", "Oops! Something went wrong. Please try again later.");
+                      displayDialog(context, "Unexpected Error",
+                          "Oops! Something went wrong. Please try again later.");
                     }
                   }
                 },
