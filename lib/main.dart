@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert' show ascii, base64, json, jsonDecode;
+import 'dart:convert' show ascii, base64, json;
 
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:wtstatsgagaaapp/battles_history_page.dart';
-import 'package:wtstatsgagaaapp/login_page.dart';
-import 'package:wtstatsgagaaapp/page_selector.dart';
-import 'package:wtstatsgagaaapp/replays_page.dart';
-import 'package:wtstatsgagaaapp/stats_page.dart';
+import 'package:wtreplaysaver/pages/login_page.dart';
+import 'package:wtreplaysaver/pages/page_selector.dart';
 
 const storage = FlutterSecureStorage();
 
 void main() {
-  storage.deleteAll();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
     if (jwt == null || JwtDecoder.isExpired(jwt)) {
@@ -30,10 +27,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Authentication Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Replay Saver',
+      theme: ThemeData.dark(),
       home: FutureBuilder(
           future: jwtOrEmpty,
           builder: (context, snapshot) {
