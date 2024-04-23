@@ -1,6 +1,7 @@
 # WT-Replays-Saver
 
 WT-Replays-Saver is a free application designed to help you save and review your battle results. With this tool, you can easily keep track of your performance and analyze your strategies.
+To keep updated join the new [Discord server](https://discord.gg/q3B45xeqZ6) !
 
 ## Key Features
 
@@ -25,4 +26,4 @@ Automate the process of uploading your replays. This feature ensures that all yo
 
 ## Getting Started
 
-To get started with WT-Replays-Saver, download the latest release, select your replays folder, and let the app do the rest. Happy battling!
+To get started with WT-Replays-Saver, download the latest release, sign up, select your replays folder from the settings page, and let the app do the rest.
